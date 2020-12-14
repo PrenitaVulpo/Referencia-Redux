@@ -3,22 +3,12 @@ import React from 'react';
 //high-order component que passa informações para o componente atual
 import {connect} from 'react-redux'
 
-//ação que modificará o estado global da aplicação
-function toggleLesson(module, lesson){
-  return{
-    //Chave obrigatória que indica qual ação está sendo executada
-    //precisa ser única
-    type: 'TOGGLE_LESSON',
-    //variáveis que serão adicionadas ao novo estado
-    module,
-    lesson
-  }
-}
+import * as courseActions from '../../store/actions'
 
 //recebe o modules que é a lista de aulas
 //recebe o dispatch, que todos os componentes que usam o connect têm acesso no redux
 //o dispatch dispara a action desejada
-function Sidebar({modules, dispatch}) {
+function Sidebar({modules, toggleLesson}) {
   return (
     <aside>
       {modules.map(module => (
@@ -28,9 +18,7 @@ function Sidebar({modules, dispatch}) {
             {module.lessons.map(lesson => (
               <li key={lesson.id}>
                 {lesson.title}
-                <button onClick={() => dispatch(
-                  toggleLesson(module.title,lesson.title)
-                )}>Mudar</button>
+                <button onClick={() => toggleLesson(module, lesson)}>Mudar</button>
               </li>
             ))}
           </ul>
@@ -40,4 +28,14 @@ function Sidebar({modules, dispatch}) {
   );
 }
 
-export default connect(state => ({modules: state.course.modules}))(Sidebar);
+
+//o connect pode receber dois parâmetros: 
+//mapStateToProps e mapDispatchToProps
+const mapStateToProps = state =>({
+  modules: state.course.modules
+})
+
+const mapDispatchToProps = dispatch =>({
+  toggleLesson: (module,lesson) => dispatch(courseActions.toggleLesson(module.title,lesson.title))
+})
+export default connect(mapStateToProps, mapDispatchToProps)(Sidebar);
