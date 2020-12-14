@@ -1,44 +1,43 @@
-import React, { Component } from 'react';
+import React from 'react';
 
-class Sidebar extends Component {
-  state = {
-    modules: [
-      {
-        id: 1,
-        title: "Capítulo 1",
-        lessons: [
-          {id: 1, title: "Aula 1"},
-          {id: 2, title: "Aula 2"},
-        ]
-      },
-      {
-        id: 2,
-        title: "Capítulo 2",
-        lessons: [
-          {id: 3, title: "Aula 3"},
-          {id: 4, title: "Aula 4"},
-        ]
-      },
-    ]
-  }
+//high-order component que passa informações para o componente atual
+import {connect} from 'react-redux'
 
-  render() {
-    const {modules} = this.state;
-    return (
-      <asside>
-        {modules.map(module => (
-          <div key={module.id}>
-            <strong>{module.title}</strong>
-            <ul>
-              {module.lessons.map(lesson => (
-                <li key={lesson.id}>{lesson.title}</li>
-              ))}
-            </ul>
-          </div>
-        ))}
-      </asside>
-    );
+//ação que modificará o estado global da aplicação
+function toggleLesson(module, lesson){
+  return{
+    //Chave obrigatória que indica qual ação está sendo executada
+    //precisa ser única
+    type: 'TOGGLE_LESSON',
+    //variáveis que serão adicionadas ao novo estado
+    module,
+    lesson
   }
 }
 
-export default Sidebar;
+//recebe o modules que é a lista de aulas
+//recebe o dispatch, que todos os componentes que usam o connect têm acesso no redux
+//o dispatch dispara a action desejada
+function Sidebar({modules, dispatch}) {
+  return (
+    <aside>
+      {modules.map(module => (
+        <div key={module.id}>
+          <strong>{module.title}</strong>
+          <ul>
+            {module.lessons.map(lesson => (
+              <li key={lesson.id}>
+                {lesson.title}
+                <button onClick={() => dispatch(
+                  toggleLesson(module.title,lesson.title)
+                )}>Mudar</button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))}
+    </aside>
+  );
+}
+
+export default connect(state => ({modules: state.modules}))(Sidebar);
